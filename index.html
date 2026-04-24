@@ -5,41 +5,42 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Asher Drake - Portfolio</title>
+   <script>document.documentElement.classList.add('js');</script>
    <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-   <nav>
-      <div></div>
-      <a href="#about">About</a>
-      <a href="#projects">Projects</a>
-      <a href="#contact">Contact</a>
-      <div></div>
+   <nav class="top-nav">
+      <div class="nav-links">
+         <a href="#">About</a>
+         <a href="#projects">Projects</a>
+         <a href="#contact">Contact</a>
+      </div>
    </nav>
-   <article class="about" id="about">
-      <div class="faceReveal">
-         <div class="pic">
+   <article class="about reveal from-up" id="about">
+      <div class="about-main">
+         <div class="faceReveal">
+            <div class="pic"></div>
+         </div>
+         <div class="intro">
+            <h1>Asher Drake</h1>
+            <p>Full Stack Web Developer</p>
          </div>
       </div>
-      <div>
-         <h2>Asher Drake</h2>
-         <p>Full Stack Web Developer
-         </p>
-      </div>
-      <div class="skills">
+      <aside class="skills">
+         <h3>Skills</h3>
          <ul>
-            <h3>Skills:</h3>
             <li>JavaScript</li>
             <li>PHP</li>
             <li>LAMP Stack</li>
             <li>HTML and CSS</li>
             <li>React</li>
          </ul>
-      </div>
+      </aside>
    </article>
 
-   <section>
-      <div class="inner" id="projects">
+   <section class="project-section reveal from-left" id="projects">
+      <div class="inner">
          <div>
             <h2>Packmates</h2>
             <p>A travel planning app that allows users to create packing lists with suggestions based on weather
@@ -56,12 +57,10 @@
                <img src="img/packmates3.JPG">
             </div>
          </div>
-
          <div class="project-images">
             <img class="main-img" src="img/packmates4.png" alt="main">
-            <div class="side-imgs">
+            <div class="side-imgs with-spacer">
                <img src="img/packmates5.JPG">
-               <img src="img/blank.png">
             </div>
          </div>
 
@@ -73,7 +72,7 @@
       </div>
    </section>
 
-   <section>
+   <section class="project-section reveal from-right">
       <div class="inner">
          <div class="project-images">
             <img class="main-img" src="img/kinorate1.JPG" alt="main">
@@ -99,7 +98,7 @@
       </div>
    </section>
 
-   <section>
+   <section class="project-section reveal from-left">
       <div class="inner">
          <div>
             <h2>Game Review Site Prototype</h2>
@@ -122,22 +121,156 @@
       </div>
    </section>
 
-   <h2>Contact</h2>
-   <hr color="white" width="70%">
-   <div class="left" id="contact">
-      <div class="skills">
-         <ul>
-            <li>Email: asherdrake821@gmail.com &nbsp;&nbsp;&nbsp;</li>
-            <li>Linkedin: <a
-                  href="https://www.linkedin.com/in/asher-drake-b260863a9">https://www.linkedin.com/in/asher-drake-b260863a9</a>
-               &nbsp;&nbsp;&nbsp;</li>
-         </ul>
+   <section class="contact-section reveal from-right" id="contact">
+      <h2>Contact</h2>
+      <div class="left">
+         <div class="skills">
+            <ul>
+               <li>Email: asherdrake821@gmail.com</li>
+               <li>LinkedIn: <a
+                     href="https://www.linkedin.com/in/asher-drake-b260863a9">https://www.linkedin.com/in/asher-drake-b260863a9</a>
+               </li>
+            </ul>
+         </div>
       </div>
+   </section>
+
+   <div class="lightbox" id="lightbox" aria-hidden="true">
+      <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous image">&#10094;</button>
+      <button class="lightbox-close" id="lightboxClose" aria-label="Close image view">&times;</button>
+      <img id="lightboxImage" src="" alt="">
+      <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next image">&#10095;</button>
+      <div class="lightbox-thumbs" id="lightboxThumbs" aria-label="Image previews"></div>
    </div>
 
+   <script>
+      const revealObserver = new IntersectionObserver((entries) => {
+         entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+               entry.target.classList.add("is-visible");
+               revealObserver.unobserve(entry.target);
+            }
+         });
+      }, { threshold: 0.2, rootMargin: "0px 0px -10% 0px" });
 
+      document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+      const lightboxClose = document.getElementById("lightboxClose");
+      const lightboxPrev = document.getElementById("lightboxPrev");
+      const lightboxNext = document.getElementById("lightboxNext");
+      const lightboxThumbs = document.getElementById("lightboxThumbs");
 
+      let currentProjectImages = [];
+      let currentImageIndex = 0;
+
+      const updateThumbnailState = () => {
+         lightboxThumbs.querySelectorAll(".lightbox-thumb").forEach((thumb, index) => {
+            thumb.classList.toggle("active", index === currentImageIndex);
+         });
+      };
+
+      const renderThumbnails = () => {
+         lightboxThumbs.innerHTML = "";
+         currentProjectImages.forEach((image, index) => {
+            const thumbButton = document.createElement("button");
+            thumbButton.type = "button";
+            thumbButton.className = "lightbox-thumb";
+
+            const thumbImage = document.createElement("img");
+            thumbImage.src = image.src;
+            thumbImage.alt = image.alt || `Preview image ${index + 1}`;
+            thumbButton.appendChild(thumbImage);
+
+            thumbButton.addEventListener("click", () => {
+               currentImageIndex = index;
+               updateLightboxImage();
+               updateNavState();
+            });
+
+            lightboxThumbs.appendChild(thumbButton);
+         });
+         updateThumbnailState();
+      };
+
+      const updateLightboxImage = () => {
+         const selectedImage = currentProjectImages[currentImageIndex];
+         if (!selectedImage) return;
+         lightboxImage.src = selectedImage.src;
+         lightboxImage.alt = selectedImage.alt || "Project image";
+         updateThumbnailState();
+      };
+
+      const updateNavState = () => {
+         lightboxPrev.disabled = currentImageIndex <= 0;
+         lightboxNext.disabled = currentImageIndex >= currentProjectImages.length - 1;
+      };
+
+      const closeLightbox = () => {
+         lightbox.classList.remove("open");
+         lightbox.setAttribute("aria-hidden", "true");
+         document.body.style.overflow = "";
+         currentProjectImages = [];
+         currentImageIndex = 0;
+         lightboxThumbs.innerHTML = "";
+      };
+
+      document.querySelectorAll(".project-images img").forEach((img) => {
+         img.addEventListener("click", () => {
+            const projectSection = img.closest(".project-section");
+            currentProjectImages = Array.from(projectSection.querySelectorAll(".project-images img"));
+            currentImageIndex = currentProjectImages.indexOf(img);
+            renderThumbnails();
+            updateLightboxImage();
+            updateNavState();
+            lightbox.classList.add("open");
+            lightbox.setAttribute("aria-hidden", "false");
+            document.body.style.overflow = "hidden";
+         });
+      });
+
+      lightboxPrev.addEventListener("click", () => {
+         if (currentImageIndex > 0) {
+            currentImageIndex -= 1;
+            updateLightboxImage();
+            updateNavState();
+         }
+      });
+
+      lightboxNext.addEventListener("click", () => {
+         if (currentImageIndex < currentProjectImages.length - 1) {
+            currentImageIndex += 1;
+            updateLightboxImage();
+            updateNavState();
+         }
+      });
+
+      lightboxClose.addEventListener("click", closeLightbox);
+
+      lightbox.addEventListener("click", (event) => {
+         if (event.target === lightbox) {
+            closeLightbox();
+         }
+      });
+
+      document.addEventListener("keydown", (event) => {
+         if (!lightbox.classList.contains("open")) return;
+         if (event.key === "Escape") {
+            closeLightbox();
+         }
+         if (event.key === "ArrowLeft" && currentImageIndex > 0) {
+            currentImageIndex -= 1;
+            updateLightboxImage();
+            updateNavState();
+         }
+         if (event.key === "ArrowRight" && currentImageIndex < currentProjectImages.length - 1) {
+            currentImageIndex += 1;
+            updateLightboxImage();
+            updateNavState();
+         }
+      });
+   </script>
 </body>
 
 </html>
